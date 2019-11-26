@@ -57,7 +57,7 @@ export class AppComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   ngOnInit() {
-    this.logo = 'assets/img/logo/mangol_logo.png';
+    this.logo = 'assets/img/logo/pelagisLogo.png';
     this.items = [
       {
         link: '/demo-map',
