@@ -13,6 +13,10 @@ declare var PR: any;
   templateUrl: './pretty-print.component.html',
   styleUrls: ['./pretty-print.component.scss']
 })
+
+/**
+ * TODO: Extend this component to pretty print the help screen associated with the containing component.
+ */
 export class PrettyPrintComponent
   implements OnInit, AfterViewInit, AfterViewChecked {
   @Input() code: string;

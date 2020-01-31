@@ -24,8 +24,18 @@ export class DemoLayertreeComponent implements OnInit, OnDestroy {
   mangolConfig: MangolConfig;
   sidebarOpenedSubscription: Subscription;
 
-  code = code;
+  /**
+   * REVIEW: What is this 'code' and how is it used? I believe it's for displaying the code associated with this component
+   * and can be removed.
+   */
+  code = 'test me';
 
+  /**
+   * TODO: Inject a service to query the current centroid for the map location.  This would be based on
+   * the user's preference, the centroid of the lease boundary, and/or possibly a 'zoom to feature' request.
+   * @param appService
+   * @param mangolService
+   */
   constructor(
     private appService: AppService,
     private mangolService: MangolService
@@ -48,10 +58,15 @@ export class DemoLayertreeComponent implements OnInit, OnDestroy {
     );
   }
 
+  // TODO: Look at the 1.0 Pelagis client for the olmap configuration
+  // TODO: The configuration should be done at the application level configuration - app.service.ts or app.store.ts.
+  // This componenent will then configure the inital map view based on the app.ol.config service or store
   ngOnInit() {
     this.mangolConfig = {
       map: {
         target: 'mangol-demo-layertree',
+        // TODO: The initial view is based on the connected user's area of interest or feature of interest (e.g. lease ).
+        // The feature of interest could also be more granular in terms of the lease,line,sock or cage or a georeferenced event
         view: new View({
           projection: 'EPSG:900913',
           center: fromLonLat(
@@ -69,6 +84,7 @@ export class DemoLayertreeComponent implements OnInit, OnDestroy {
               visible: true
             })
           }),
+          // TODO: Create a layer group to reflect the feature types in the Pelagis OGC::Feature domain
           new MangolLayerGroup({
             name: 'Overlays',
             children: [
@@ -76,7 +92,7 @@ export class DemoLayertreeComponent implements OnInit, OnDestroy {
                 name: 'Roads',
                 layer: new TileLayer({
                   source: new TileWMS({
-                    url:
+                    url:  // TODO: Update the url to point to the Pelagis geoserver wms service
                       'http://188.166.116.137:8080/geoserver/gwc/service/wms',
                     crossOrigin: 'anonymous',
                     params: {

@@ -12,6 +12,11 @@ import * as fromMeasure from './measure/measure.reducers';
 import * as fromPrint from './print/print.reducers';
 import * as fromSidebar from './sidebar/sidebar.reducers';
 
+/**
+ * The MangolState is the application state for the Mangol library and contains
+ * a 'slice' for each component within the Mangol library
+ * REVIEW: How can we access the state outside of the library so that we can subscribe to certain states that affect the main app
+ */
 export interface MangolState {
   config: fromConfig.State;
   controllers: fromControllers.State;

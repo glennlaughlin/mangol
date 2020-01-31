@@ -81,6 +81,16 @@ export class DemoControllersComponent implements OnInit, OnDestroy {
               minimize: 'Normal Mode'
             },
             showTooltip: true
+          },
+          /**
+           * TODO: Add a new controller to set the centroid location of the map
+           */
+          rePosition: {
+            show: true,
+            dictionary: {
+              
+            }
+
           }
         }
       }

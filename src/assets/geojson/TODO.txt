@@ -1,0 +1,4 @@
+TODO: This is a design pattern for publishing static geometry files to the application service.
+E.g. publish the current geoJson features associated with the aquaculture lease boundaries. Since these will not 
+change through the application, we don't need to store these features in the database. That said, for analytics
+within PostGIS (SQL-MM Spatial), we would need the features persisted in the database. 

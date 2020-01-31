@@ -51,6 +51,15 @@ export interface MangolControllersRotationOptions
   showTooltip?: boolean;
 }
 
+/**
+ * TODO: Implement a reposition option.
+ * This *should* use the MangolService to reposition the map to center on a distinct location.
+ */
+export interface MyControllersRePositionOptions
+extends MangolControllersOptions {
+  reCenterOn?: Coordinates;
+}
+
 export interface MangolConfigMapControllers {
   zoom?: MangolControllersZoomOptions;
   scalebar?: MangolControllersScalebarOptions;
@@ -58,4 +67,5 @@ export interface MangolConfigMapControllers {
   tileload?: MangolControllersTileloadOptions;
   rotation?: MangolControllersRotationOptions;
   fullScreen?: MangolControllersFullScreenOptions;
+  rePosition?: MyControllersRePositionOptions;
 }

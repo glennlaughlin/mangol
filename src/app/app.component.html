@@ -36,7 +36,7 @@
         class="demo-sidenav"
         mode="side"
         [opened]="sidebarOpened">
-        <h1>Demos</h1>
+        <h1>Sandbox</h1>
         <mat-card *ngFor="let item of items"
             [ngClass]="{'active': activeRouteData === item.link}"
             (click)="navigate(item)">

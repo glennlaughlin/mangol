@@ -27,12 +27,21 @@ export class MapService {
           })
         })
       ],
-      view: new View({
-        projection: 'EPSG:3857',
-        center: fromLonLat([19.3956393810065, 47.168464955013], 'EPSG:3857'),
-        zoom: 4,
-        enableRotation: true
-      })
+      /**
+       * Set the coordinates and project for the Default mapView
+       * TODO: Default to the centroid of the lease boundary featureCollection
+       *   Can we inject a mapService to listen for the coordinates based on the user lease selection?
+       * REVIEW: Why is this projection different from the demo-sidebar onInit
+       */
+      view: new View(
+        {
+          // Center on St Anns Bay
+          projection: 'EPSG:3857',
+          center: fromLonLat([46.260472, -60.575336], 'EPSG:3857'),
+          zoom: 4,
+          enableRotation: true
+        }
+      )
     };
   }
 }

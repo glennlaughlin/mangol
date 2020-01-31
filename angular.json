@@ -69,7 +69,8 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "browserTarget": "mangol-app:build"
+                        "browserTarget": "mangol-app:build",
+                        "port": 4201
                     },
                     "configurations": {
                         "production": {

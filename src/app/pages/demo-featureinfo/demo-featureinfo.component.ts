@@ -49,6 +49,9 @@ export class DemoFeatureinfoComponent implements OnInit, OnDestroy {
     );
   }
 
+  // TODO: Configure the view based on the active application feature. 
+  // REVIEW: Do we really have different states for the view? Possibly different active layers but the map view behaviour
+  // should be consistent ... ?  Can we have a default mapConfig and override only those options based on the application use.
   ngOnInit() {
     const pseudoGeoJSONFormat = <any>GeoJSON;
     this.mangolConfig = {
@@ -100,7 +103,7 @@ export class DemoFeatureinfoComponent implements OnInit, OnDestroy {
             ],
             layer: new TileLayer({
               source: new TileWMS({
-                url: 'http://188.166.116.137:8080/geoserver/gwc/service/wms',
+                url: 'http://188.166.116.137:8080/geoserver/gwc/service/wms',  // TODO: Update this to point to our geoserver instance
                 crossOrigin: 'anonymous',
                 params: {
                   LAYERS: ['naturalearth:populated_places'],

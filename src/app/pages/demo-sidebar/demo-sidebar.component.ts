@@ -42,17 +42,21 @@ export class DemoSidebarComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Initialize the mapComponent's centerOn location coordinates and projection
+   * TODO: This needs to be initialized based on the userProfile default map location which should be the centroid
+   * of the LeaseBoundary featureCollection for all subscribed leases
+   * REVIEW: EPSG:900913 This is the Google project system. Does it support all base layers? Bing maps? Or EPSG:3857 for Microsoft.
+
+   */
   ngOnInit() {
     this.mangolConfig = {
       map: {
         target: 'mangol-demo-sidebar',
         view: new View({
           projection: 'EPSG:900913',
-          center: fromLonLat(
-            [19.3956393810065, 47.168464955013],
-            'EPSG:900913'
-          ),
-          zoom: 4
+          center: fromLonLat( [-60.575336, 46.260472], 'EPSG:900913' ), // Center on St Anns Bay
+          zoom: 12
         })
       },
       sidebar: {

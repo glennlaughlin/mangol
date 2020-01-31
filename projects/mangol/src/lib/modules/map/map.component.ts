@@ -6,11 +6,14 @@ import {
   OnInit
 } from '@angular/core';
 import { Store } from '@ngrx/store';
+
+// Import the OpenLayers interfaces REVIEW:
 import Map from 'ol/Map';
 import { addCommon as addCommonProjections } from 'ol/proj.js';
 import { register } from 'ol/proj/proj4.js';
 import View from 'ol/View';
 import proj4 from 'proj4';
+
 import { Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 
@@ -76,6 +79,10 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         : this.defaultMap.target;
   }
 
+  // REVIEW: Review this section of code as it configures the view of the map based on the configuration. The goal
+  // is to set the configuration for each view driven by the app so that the map view makes sense. For example, center on 
+  // a lease boundary means we need to get the boundary coordinates, it's centroid, and a proper zoom level to configure the 
+  // view to pan/zoom to the lease extend. Need to review how we did this with version 1.0.
   ngAfterViewInit() {
     addCommonProjections();
     register(proj4);
@@ -140,6 +147,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         };
       });
 
+    // REVIEW: review this as well to see how the mapSubscription can be manipulated
     this.mapSubscription = this.store
       .select(state => state.map.map)
       .pipe(filter(m => m !== null))
@@ -184,6 +192,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Creates the pointermove event handler function
+   * REVIEW: Review how to create custom callback event functions for use from OpenLayers
    * @param evt
    */
   private _createPointerMoveFunction(evt) {
