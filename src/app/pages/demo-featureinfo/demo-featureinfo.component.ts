@@ -74,6 +74,8 @@ export class DemoFeatureinfoComponent implements OnInit, OnDestroy {
               visible: true
             })
           }),
+          // REVIEW: This is how we could ingest the vector layers for the lease boundaries. We would have to ensure the initial map 
+          // position and extent is set to enclose the lease boundaries
           new MangolLayer({
             name: 'Countries (Vector)',
             queryable: true,
@@ -101,6 +103,8 @@ export class DemoFeatureinfoComponent implements OnInit, OnDestroy {
               'TIMEZONE',
               'FEATURECLA'
             ],
+            //REVIEW: How do we use geoserver to publish web map service layers. This looks like it's directing to 'naturalearth'. 
+            // Is it best to go through geoServer or does the client pull directly from each map service?
             layer: new TileLayer({
               source: new TileWMS({
                 url: 'http://188.166.116.137:8080/geoserver/gwc/service/wms',  // TODO: Update this to point to our geoserver instance

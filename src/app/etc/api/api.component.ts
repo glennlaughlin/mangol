@@ -13,7 +13,7 @@ export class ApiComponent implements OnInit {
   constructor() {}
 
   /**
-   * REVIEW: This is a pattern to GET an html page from a web server. Use this pattern
+   * REVIEW: This is a pattern to GET a centralized html page from a web server. Use this pattern
    * to GET the javascript content for Bokeh charts
    */
   ngOnInit() {
