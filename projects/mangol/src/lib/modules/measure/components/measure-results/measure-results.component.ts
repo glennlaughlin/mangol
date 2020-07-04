@@ -1,12 +1,16 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
+import BaseEvent from 'ol/events/Event';
 import Feature from 'ol/Feature';
 import Circle from 'ol/geom/Circle';
+import Geometry from 'ol/geom/Geometry';
 import LineString from 'ol/geom/LineString';
 import Polygon from 'ol/geom/Polygon';
 import Draw, { DrawEvent } from 'ol/interaction/Draw';
 import VectorLayer from 'ol/layer/Vector';
 import Map from 'ol/Map';
+import { unByKey } from 'ol/Observable';
+import { getArea, getLength } from 'ol/sphere';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 
@@ -19,7 +23,7 @@ import { MeasureDictionary } from './../../../../store/measure/measure.reducers'
 @Component({
   selector: 'mangol-measure-results',
   templateUrl: './measure-results.component.html',
-  styleUrls: ['./measure-results.component.scss']
+  styleUrls: ['./measure-results.component.scss'],
 })
 export class MeasureResultsComponent implements OnInit, OnDestroy {
   @Input()
@@ -40,28 +44,28 @@ export class MeasureResultsComponent implements OnInit, OnDestroy {
     private measureService: MeasureService
   ) {
     this.map$ = this.store
-      .select(state => state.map.map)
-      .pipe(filter(m => m !== null));
+      .select((state) => state.map.map)
+      .pipe(filter((m) => m !== null));
     this.layer$ = this.store
-      .select(state => state.layers.measureLayer)
-      .pipe(filter(l => l !== null));
+      .select((state) => state.layers.measureLayer)
+      .pipe(filter((l) => l !== null));
     this.measureMode$ = this.store
-      .select(state => state.measure.mode)
-      .pipe(filter(mode => mode !== null));
-    this.cursorText$ = this.store.select(state => state.cursor.mode.text);
+      .select((state) => state.measure.mode)
+      .pipe(filter((mode) => mode !== null));
+    this.cursorText$ = this.store.select((state) => state.cursor.mode.text);
   }
 
   ngOnInit() {
-    this.combinedSubscription = combineLatest(
+    this.combinedSubscription = combineLatest([
       this.map$,
       this.layer$,
-      this.measureMode$
-    ).subscribe(([m, layer, mode]) => {
+      this.measureMode$,
+    ]).subscribe(([m, layer, mode]) => {
       const mapLayers = m.getLayers().getArray();
       let maxZIndex = mapLayers.length - 1;
       m.getLayers()
         .getArray()
-        .forEach(l => {
+        .forEach((l) => {
           if (l !== layer) {
             maxZIndex = l.getZIndex() > maxZIndex ? l.getZIndex() : maxZIndex;
           }
@@ -73,7 +77,7 @@ export class MeasureResultsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    combineLatest(this.map$, this.layer$)
+    combineLatest([this.map$, this.layer$])
       .pipe(take(1))
       .subscribe(([m, layer]) => {
         this._deactivateDraw(m, layer);
@@ -90,7 +94,7 @@ export class MeasureResultsComponent implements OnInit, OnDestroy {
     this.draw = new Draw({
       source: layer.getSource(),
       style: (feature: Feature) => this.measureService.getStyle(feature),
-      type: mode.geometryName
+      type: mode.geometryName,
     });
     this.initialText =
       (mode.type === 'radius'
@@ -99,49 +103,55 @@ export class MeasureResultsComponent implements OnInit, OnDestroy {
     this.store.dispatch(
       new CursorActions.SetMode({
         text: this.initialText,
-        cursor: 'crosshair'
+        cursor: 'crosshair',
       })
     );
     this.displayValue = this.initialText;
-    this.draw.on('drawstart', (e: any) => {
+    let listener = null;
+    this.draw.on('drawstart', (e: DrawEvent) => {
       layer.getSource().clear();
       this.store.dispatch(
         new CursorActions.SetMode({
           text: this.initialText,
-          cursor: 'crosshair'
+          cursor: 'crosshair',
         })
       );
       this.displayValue = null;
-      const feature: Feature = e.feature;
-      feature.on('change', (evt: any) => {
-        const feat: Feature = evt.target;
+      const feature = e.feature;
+      listener = feature.getGeometry().on('change', (evt: BaseEvent) => {
+        const geom: Geometry = evt.target;
         let displayValue: string = null;
         switch (mode.type) {
           case 'line':
-            const lineString = <LineString>feat.getGeometry();
+            const lineString = geom as LineString;
             displayValue = `${
               this.dictionary.distance
             }: ${this.measureService.exchangeMetersAndKilometers(
-              lineString.getLength()
+              getLength(lineString)
             )}.`;
             break;
           case 'area':
-            const polygon = <Polygon>feat.getGeometry();
+            const polygon = geom as Polygon;
             displayValue = `${
               this.dictionary.area
             }: ${this.measureService.exchangeSqmetersAndSqkilometers(
-              polygon.getArea()
+              getArea(polygon)
             )}.`;
             break;
           case 'radius':
-            const circle = <Circle>feat.getGeometry();
+            const circle = geom as Circle;
             this.store
-              .select(state => state.controllers.position.coordinates)
+              .select((state) => state.controllers.position.coordinates)
               .pipe(take(1))
-              .subscribe(position => {
+              .subscribe((position) => {
                 const center = circle.getCenter();
                 const dx = position[0] - center[0];
                 const dy = position[1] - center[1];
+                // This is needed for calculationg the length of the radius
+                const line = new LineString([
+                  [+center[0], +center[1]],
+                  [+position[0], +position[1]],
+                ]);
                 // range (-PI, PI]
                 let angle = Math.atan2(dy, dx);
                 // rads to degs, range (-180, 180]
@@ -153,7 +163,7 @@ export class MeasureResultsComponent implements OnInit, OnDestroy {
                 displayValue = `${
                   this.dictionary.radius
                 }: ${this.measureService.exchangeMetersAndKilometers(
-                  circle.getRadius()
+                  getLength(line)
                 )}, ${this.dictionary.angle}: ${displayAngle}.`;
               });
             break;
@@ -163,7 +173,7 @@ export class MeasureResultsComponent implements OnInit, OnDestroy {
         this.store.dispatch(
           new CursorActions.SetMode({
             text: `${displayValue}\n${this.initialText}`,
-            cursor: 'crosshair'
+            cursor: 'crosshair',
           })
         );
         this.displayValue = displayValue;
@@ -171,11 +181,12 @@ export class MeasureResultsComponent implements OnInit, OnDestroy {
     });
 
     this.draw.on('drawend', (e: DrawEvent) => {
+      unByKey(listener);
       e.feature.setProperties({ text: this.displayValue });
       this.store.dispatch(
         new CursorActions.SetMode({
           text: this.dictionary.clickOnMap,
-          cursor: 'crosshair'
+          cursor: 'crosshair',
         })
       );
     });
@@ -185,7 +196,7 @@ export class MeasureResultsComponent implements OnInit, OnDestroy {
     this.store.dispatch(
       new CursorActions.SetMode({
         text: this.dictionary.clickOnMap,
-        cursor: 'crosshair'
+        cursor: 'crosshair',
       })
     );
     this.displayValue = this.dictionary.clickOnMap;
